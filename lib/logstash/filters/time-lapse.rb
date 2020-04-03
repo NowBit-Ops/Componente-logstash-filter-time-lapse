@@ -26,7 +26,7 @@ class LogStash::Filters::TimeLapse < LogStash::Filters::Base
   public
   def register
     # Add instance variables
-	hash = Hash.new
+	$hash = {}
 
   end # def register
 
@@ -34,12 +34,13 @@ class LogStash::Filters::TimeLapse < LogStash::Filters::Base
   def filter(event)
 
     if @transactionid
-  		if hash[event.get(@transactionid)] == nil
-  			hash[event.get(@transactionid)] = event.get(@datefield)
+  		if $hash[event.get(@transactionid)] == nil
+  			$hash[event.get(@transactionid)] = event.get(@datefield)
   			event.set("duracion", 0)
   		else
-  			firstDate = hash[event.get(@transactionid)]
-  			event.set('duracion', Time.strptime(firstDate, '%Y-%m-%d %H:%M:%S') - event.get('@timestamp'))
+  			firstDate = $hash[event.get(@transactionid)]
+        $hash[event.get(@transactionid)] = event.get(@datefield)
+  			event.set('duracion',  event.get('@timestamp') - firstDate)
   		end
     end
 
