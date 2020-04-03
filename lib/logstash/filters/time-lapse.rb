@@ -34,11 +34,11 @@ class LogStash::Filters::TimeLapse < LogStash::Filters::Base
   def filter(event)
 
     if @transactionid
-  		if hash[:event.get(@transactionid)] == nil
-  			hash[:event.get(@transactionid)] = event.get(@datefield)
+  		if hash[event.get(@transactionid)] == nil
+  			hash[event.get(@transactionid)] = event.get(@datefield)
   			event.set("duracion", 0)
   		else
-  			firstDate = hash[:event.get(@transactionid)]
+  			firstDate = hash[event.get(@transactionid)]
   			event.set('duracion', LogStash::Timestamp.new(Time.strptime(firstDate, '%Y-%m-%d %H:%M:%S')) - event.get('@timestamp'))
   		end
     end
