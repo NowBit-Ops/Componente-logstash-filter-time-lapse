@@ -21,21 +21,20 @@ class LogStash::Filters::TimeLapse < LogStash::Filters::Base
 
   # Replace the message with this value.
   config :transactionid, :validate => :string, :required => true
-  config :identifierfield, :validate => :string, :required => true
   config :datefield, :validate => :string, :default => "@timestamp"
 
   public
   def register
     # Add instance variables
-	hash = Hash.new 
-	
+	hash = Hash.new
+
   end # def register
 
   public
   def filter(event)
 
     if @transactionid
-	
+
 		if hash[:event.get(@transactionid)] == nil
 			hash[:event.get(@transactionid)] = event.get(@datefield)
 			event.set("duracion", 0)
@@ -43,7 +42,7 @@ class LogStash::Filters::TimeLapse < LogStash::Filters::Base
 			firstDate = hash[:event.get(@transactionid)]
 			event.set('duracion', LogStash::Timestamp.new(Time.strptime(firstDate, '%Y-%m-%d %H:%M:%S')) - event.get('@timestamp'))
 		end
-	
+
     end
 
     # filter_matched should go in the last line of our successful code
