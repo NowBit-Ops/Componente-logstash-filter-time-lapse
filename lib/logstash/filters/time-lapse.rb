@@ -39,7 +39,7 @@ class LogStash::Filters::TimeLapse < LogStash::Filters::Base
   			event.set("duracion", 0)
   		else
   			firstDate = hash[event.get(@transactionid)]
-  			event.set('duracion', LogStash::Timestamp.new(Time.strptime(firstDate, '%Y-%m-%d %H:%M:%S')) - event.get('@timestamp'))
+  			event.set('duracion', Time.strptime(firstDate, '%Y-%m-%d %H:%M:%S') - event.get('@timestamp'))
   		end
     end
 
