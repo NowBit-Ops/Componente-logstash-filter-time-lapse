@@ -17,7 +17,7 @@ class LogStash::Filters::TimeLapse < LogStash::Filters::Base
   #   }
   # }
   #
-  config_name "timelapse"
+  config_name "time-lapse"
 
   # Replace the message with this value.
   config :transactionid, :validate => :string, :required => true
