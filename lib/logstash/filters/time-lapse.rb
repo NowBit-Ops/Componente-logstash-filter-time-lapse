@@ -17,29 +17,33 @@ class LogStash::Filters::TimeLapse < LogStash::Filters::Base
   #   }
   # }
   #
-  config_name "example"
+  config_name "timelapse"
 
   # Replace the message with this value.
-  config :message, :validate => :string, :default => "Hello World!"
-
+  config :transactionid, :validate => :string, :required => true
+  config :identifierfield, :validate => :string, :required => true
+  config :datefield, :validate => :string, :default => "@timestamp"
 
   public
   def register
     # Add instance variables
+	hash = Hash.new 
+	
   end # def register
 
   public
   def filter(event)
 
-    if @message
-      # Replace the event message with our message as configured in the
-      # config file.
-
-      # using the event.set API
-      event.set("message", @message)
-      # correct debugging log statement for reference
-      # using the event.get API
-      @logger.debug? && @logger.debug("Message is now: #{event.get("message")}")
+    if @transactionid
+	
+		if hash[:event.get(@transactionid)] == nil
+			hash[:event.get(@transactionid)] = event.get(@datefield)
+			event.set("duracion", 0)
+		else
+			firstDate = hash[:event.get(@transactionid)]
+			event.set('duracion', LogStash::Timestamp.new(Time.strptime(firstDate, '%Y-%m-%d %H:%M:%S')) - event.get('@timestamp'))
+		end
+	
     end
 
     # filter_matched should go in the last line of our successful code
