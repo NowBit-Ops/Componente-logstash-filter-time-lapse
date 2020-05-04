@@ -1,7 +1,7 @@
 # encoding: utf-8
 require "logstash/filters/base"
 require "logstash/namespace"
-
+require_relative "class_rbtree"
 # This example filter will replace the contents of the default
 # message field with whatever you specify in the configuration.
 #
@@ -22,6 +22,7 @@ class LogStash::Filters::TimeLapse < LogStash::Filters::Base
   # Replace the message with this value.
   config :transactionid, :validate => :string, :required => true
   config :datefield, :validate => :string, :default => "@timestamp"
+  config :validationField, :validate => :string
 
   public
   def register
@@ -35,14 +36,24 @@ class LogStash::Filters::TimeLapse < LogStash::Filters::Base
 
     if @transactionid
   		if $hash[event.get(@transactionid)] == nil
-  			$hash[event.get(@transactionid)] = event.get(@datefield)
+  			$hash[event.get(@transactionid)] = [event.get(@datefield), event.get(@validationField)]
   			event.set("duracion", 0)
-  		else
-  			firstDate = $hash[event.get(@transactionid)]
-        $hash[event.get(@transactionid)] = event.get(@datefield)
-  			event.set('duracion',  event.get('@timestamp') - firstDate)
+      else
+        hash = $hash[event.get(@transactionid)]
+        firstDate = hash[0]
+        firstService = hash[1]
+
+        
+        $hash[event.get(@transactionid)] = [event.get(@datefield), firstService]
+        event.set('duracion',  event.get('@timestamp') - firstDate)
+        event.set('ServiceName',  firstService)
+
+        if firstService == event.get(@validationField)
+          $hash.delete(@transactionid)
+        end
   		end
     end
+    event.set("hash.size", $hash.size())
 
     # filter_matched should go in the last line of our successful code
     filter_matched(event)
